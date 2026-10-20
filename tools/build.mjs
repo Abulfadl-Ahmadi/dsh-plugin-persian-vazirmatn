@@ -28,27 +28,61 @@ const cssRules = `
   unicode-range: U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+200C-200F;
 }
 
-/* --- Theme Font Stack Interception --- */
-:root {
-  --dsw-font-family: 'Vazirmatn-DSH-Persian', "Anthropic Sans Web Text", "Claude Style Inter", "Noto Sans SC", "Source Han Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --dsh-claude-font-serif: 'Vazirmatn-DSH-Persian', "Anthropic Serif Web Text", "Claude Style Noto Serif", Georgia, "Times New Roman", serif;
-  --dsh-claude-font-prose: 'Vazirmatn-DSH-Persian', "Anthropic Serif Web Text", "Claude Style Noto Serif", Georgia, "Times New Roman", serif;
-  --dsh-claude-font-code: 'Vazirmatn-DSH-Persian', "Anthropic Mono Web", "JetBrains Mono", Consolas, "Liberation Mono", Menlo, Courier, monospace;
-  --ds-font-family-code: 'Vazirmatn-DSH-Persian', "Anthropic Mono Web", "JetBrains Mono", Consolas, "Liberation Mono", Menlo, Courier, monospace;
-  --dsh-claude-font-brand: 'Vazirmatn-DSH-Persian', "Anthropic Serif Web Text", Georgia, serif;
+/* Override all DSH and theme font variables with maximum specificity */
+:root,
+html,
+body,
+body[data-dsh-claude-style],
+body[data-dsh-claude-style][data-dsh-claude-typeface],
+body[data-dsh-claude-style][data-dsh-claude-typeface="claude"] {
+  --dsw-font-family: 'Vazirmatn-DSH-Persian', "Anthropic Sans Web Text", "Claude Style Inter", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  --dsh-claude-font-serif: 'Vazirmatn-DSH-Persian', "Anthropic Serif Web Text", "Claude Style Noto Serif", Georgia, serif !important;
+  --dsh-claude-font-prose: 'Vazirmatn-DSH-Persian', "Anthropic Serif Web Text", "Claude Style Noto Serif", Georgia, serif !important;
+  --dsh-claude-font-code: 'Vazirmatn-DSH-Persian', "Anthropic Mono Web", "JetBrains Mono", Consolas, monospace !important;
+  --ds-font-family-code: 'Vazirmatn-DSH-Persian', "Anthropic Mono Web", "JetBrains Mono", Consolas, monospace !important;
+  --dsh-claude-font-brand: 'Vazirmatn-DSH-Persian', "Anthropic Serif Web Text", Georgia, serif !important;
 }
 
-/* Base Body and Text Controls */
-body, input, textarea, select, button, [data-component="chat-message"] {
-  font-family: 'Vazirmatn-DSH-Persian', var(--dsw-font-family, system-ui, sans-serif);
+/* Direct targeted override on ALL AI chat response and transcript elements */
+[class*="_markdown_"],
+[class*="_markdown_"] p,
+[class*="_markdown_"] li,
+[class*="_markdown_"] blockquote,
+[class*="_markdown_"] div,
+[class*="_markdown_"] span:not([class*="katex"]):not([class*="math"]):not([class*="cm-"]):not([class*="token"]),
+[data-component="chat-message"],
+[data-component="chat-message"] p,
+[data-component="chat-message"] li,
+[data-component="chat-message"] div,
+.markdown-body,
+.markdown-body p,
+.markdown-body li,
+.markdown-body div {
+  font-family: 'Vazirmatn-DSH-Persian', var(--dsw-font-family), system-ui, sans-serif !important;
+}
+
+/* UI text, inputs, buttons, menus */
+body, input, textarea, select, button {
+  font-family: 'Vazirmatn-DSH-Persian', var(--dsw-font-family), system-ui, sans-serif !important;
 }
 
 /* Headings */
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Vazirmatn-DSH-Persian', var(--dsh-claude-font-serif, var(--dsw-font-family, system-ui, sans-serif));
+h1, h2, h3, h4, h5, h6,
+[class*="_markdown_"] :where(h1,h2,h3,h4,h5,h6),
+.markdown-body :where(h1,h2,h3,h4,h5,h6) {
+  font-family: 'Vazirmatn-DSH-Persian', var(--dsh-claude-font-serif, var(--dsw-font-family, system-ui, sans-serif)) !important;
 }
 
-/* --- Strict LaTeX & Math Protection (Computer Modern / Latin Modern / KaTeX) --- */
+/* Code blocks: JetBrains Mono for English, Vazirmatn for Persian comments */
+pre, code, kbd, samp, .cm-editor, .monaco-editor, [data-code-block],
+[class*="_markdown_"] pre, [class*="_markdown_"] code,
+.markdown-body pre, .markdown-body code {
+  font-family: 'Vazirmatn-DSH-Persian', var(--ds-font-family-code, "JetBrains Mono", Consolas, monospace) !important;
+  direction: ltr !important;
+  text-align: left !important;
+}
+
+/* ABSOLUTE STRICT LaTeX & Math Protection (Computer Modern / Latin Modern / KaTeX) */
 .katex,
 .katex *,
 .katex-display,
@@ -109,18 +143,10 @@ math *,
   font-family: 'Vazirmatn-DSH-Persian', KaTeX_Main, serif !important;
 }
 
-/* --- Persian Typography Refinements --- */
+/* Refined Persian paragraph spacing */
 :is(p, li, blockquote, div):lang(fa),
 [dir="rtl"] {
-  line-height: 1.75;
-  letter-spacing: -0.01em;
-}
-
-/* Code blocks, terminals, and preformatted blocks stay strictly LTR */
-pre, code, kbd, samp, .cm-editor, .monaco-editor, [data-code-block] {
-  direction: ltr !important;
-  text-align: left !important;
-  font-family: 'Vazirmatn-DSH-Persian', var(--dsh-claude-font-code, "JetBrains Mono", Consolas, monospace) !important;
+  line-height: 1.8 !important;
 }
 `;
 
@@ -131,11 +157,16 @@ const clientJs = `// dsh-plugin-persian-vazirmatn: Persian Vazirmatn Typography 
   var CSS = ${JSON.stringify(cssRules)};
 
   function injectStyles() {
-    if (document.getElementById(STYLE_ID)) return;
+    var existing = document.getElementById(STYLE_ID);
+    if (existing) {
+      existing.textContent = CSS;
+      return;
+    }
     var style = document.createElement('style');
     style.id = STYLE_ID;
+    style.setAttribute('data-plugin', 'dsh-plugin-persian-vazirmatn');
     style.textContent = CSS;
-    document.head.appendChild(style);
+    (document.head || document.documentElement).appendChild(style);
   }
 
   function removeStyles() {
@@ -144,13 +175,16 @@ const clientJs = `// dsh-plugin-persian-vazirmatn: Persian Vazirmatn Typography 
   }
 
   function autoDetectPersianDir() {
-    // Automatically set dir='auto' on paragraphs if not set
-    var selector = '.markdown-body p, [data-component="chat-message"] p';
+    var selector = '[class*="_markdown_"] p, [data-component="chat-message"] p, .markdown-body p';
     var nodes = document.querySelectorAll(selector);
+    var persianRegex = /[\\u0600-\\u06FF\\uFB50-\\uFDFF\\uFE70-\\uFEFF]/;
     for (var i = 0; i < nodes.length; i++) {
       var n = nodes[i];
       if (!n.getAttribute('dir')) {
-        n.setAttribute('dir', 'auto');
+        var text = (n.textContent || '').trim();
+        if (persianRegex.test(text.slice(0, 50))) {
+          n.setAttribute('dir', 'rtl');
+        }
       }
     }
   }
@@ -161,7 +195,7 @@ const clientJs = `// dsh-plugin-persian-vazirmatn: Persian Vazirmatn Typography 
     observer = new MutationObserver(function() {
       autoDetectPersianDir();
     });
-    observer.observe(document.body, { childList: true, subtree: true });
+    observer.observe(document.body || document.documentElement, { childList: true, subtree: true });
   }
 
   function stopObserver() {
@@ -169,6 +203,17 @@ const clientJs = `// dsh-plugin-persian-vazirmatn: Persian Vazirmatn Typography 
       observer.disconnect();
       observer = null;
     }
+  }
+
+  // Execute immediately on script injection
+  try {
+    injectStyles();
+    if (typeof document !== 'undefined' && document.body) {
+      autoDetectPersianDir();
+      startObserver();
+    }
+  } catch (e) {
+    console.error('[dsh-plugin-persian-vazirmatn] Direct injection error:', e);
   }
 
   function createPlugin() {
