@@ -11,7 +11,7 @@ const rootDir = path.resolve(__dirname, '..');
 test('package.json metadata and dsh config', () => {
   const pkg = JSON.parse(fs.readFileSync(path.join(rootDir, 'package.json'), 'utf8'));
   assert.equal(pkg.name, 'dsh-plugin-persian-vazirmatn');
-  assert.equal(pkg.version, '1.0.0');
+  assert.equal(pkg.version, '1.0.1');
   assert.ok(pkg.exports['.']);
   assert.ok(pkg.exports['./client']);
   assert.ok(pkg.dsh.bundle.patch);

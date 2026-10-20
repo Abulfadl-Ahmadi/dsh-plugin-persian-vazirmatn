@@ -55,7 +55,7 @@ dsh-plugin-persian-vazirmatn
 یا مستقیماً با آدرس گیت‌هاب:
 
 ```text
-github:Abulfadl-Ahmadi/dsh-plugin-persian-vazirmatn#v1.0.0
+github:Abulfadl-Ahmadi/dsh-plugin-persian-vazirmatn#v1.0.1
 ```
 
 ### روش ۲: نصب با خط فرمان (DSH CLI)

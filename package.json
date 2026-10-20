@@ -1,6 +1,6 @@
 {
   "name": "dsh-plugin-persian-vazirmatn",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Persian Vazirmatn typography (Persian-only unicode-range) with Claude-style English font preservation & LaTeX / Computer Modern math protection for DeepSeek Harness (DSH)",
   "main": "lib/index.js",
   "type": "module",
