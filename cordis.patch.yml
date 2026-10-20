@@ -1,0 +1,4 @@
+# dsh-plugin-persian-vazirmatn cordis patch
+- insert:
+    - id: persian-vazirmatn
+      name: dsh-plugin-persian-vazirmatn

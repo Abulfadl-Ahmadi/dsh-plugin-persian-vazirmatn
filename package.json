@@ -1,0 +1,67 @@
+{
+  "name": "dsh-plugin-persian-vazirmatn",
+  "version": "1.0.0",
+  "description": "Persian Vazirmatn typography (Persian-only unicode-range) with Claude-style English font preservation & LaTeX / Computer Modern math protection for DeepSeek Harness (DSH)",
+  "main": "lib/index.js",
+  "type": "module",
+  "icon": "assets/icon.svg",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "assets",
+    "fonts",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE",
+    "OFL.txt",
+    "AUTHORS.txt"
+  ],
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "dsh-plugin",
+    "persian",
+    "vazirmatn",
+    "font",
+    "typography",
+    "latex",
+    "computer-modern",
+    "latin-modern",
+    "farsi",
+    "rtl"
+  ],
+  "author": "Abulfadl Ahmadi <abulfadl.ahmadi@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Abulfadl-Ahmadi/dsh-plugin-persian-vazirmatn.git"
+  },
+  "homepage": "https://github.com/Abulfadl-Ahmadi/dsh-plugin-persian-vazirmatn#readme",
+  "bugs": {
+    "url": "https://github.com/Abulfadl-Ahmadi/dsh-plugin-persian-vazirmatn/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dsh": {
+    "engines": {
+      "dsh": ">=0.1.0"
+    },
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": []
+    }
+  }
+}
