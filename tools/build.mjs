@@ -28,7 +28,7 @@ const cssRules = `
   unicode-range: U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+200C-200F;
 }
 
-/* Override all DSH and theme font variables with maximum specificity */
+/* Override all DSH and theme font variables with high specificity */
 :root,
 html,
 body,
@@ -43,21 +43,10 @@ body[data-dsh-claude-style][data-dsh-claude-typeface="claude"] {
   --dsh-claude-font-brand: 'Vazirmatn-DSH-Persian', "Anthropic Serif Web Text", Georgia, serif !important;
 }
 
-/* Direct targeted override on ALL AI chat response and transcript elements */
-[class*="_markdown_"],
-[class*="_markdown_"] p,
-[class*="_markdown_"] li,
-[class*="_markdown_"] blockquote,
-[class*="_markdown_"] div,
-[class*="_markdown_"] span:not([class*="katex"]):not([class*="math"]):not([class*="cm-"]):not([class*="token"]),
-[data-component="chat-message"],
-[data-component="chat-message"] p,
-[data-component="chat-message"] li,
-[data-component="chat-message"] div,
-.markdown-body,
-.markdown-body p,
-.markdown-body li,
-.markdown-body div {
+/* Direct targeted override on ALL AI chat response and transcript elements, EXCLUDING KaTeX and Math */
+[class*="_markdown_"] :is(p, li, blockquote, div):not(.katex):not(.katex *):not([class*="katex"]),
+[data-component="chat-message"] :is(p, li, blockquote, div):not(.katex):not(.katex *):not([class*="katex"]),
+.markdown-body :is(p, li, blockquote, div):not(.katex):not(.katex *):not([class*="katex"]) {
   font-family: 'Vazirmatn-DSH-Persian', var(--dsw-font-family), system-ui, sans-serif !important;
 }
 
@@ -75,72 +64,26 @@ h1, h2, h3, h4, h5, h6,
 
 /* Code blocks: JetBrains Mono for English, Vazirmatn for Persian comments */
 pre, code, kbd, samp, .cm-editor, .monaco-editor, [data-code-block],
-[class*="_markdown_"] pre, [class*="_markdown_"] code,
-.markdown-body pre, .markdown-body code {
+[class*="_markdown_"] pre, [class*="_markdown_"] code:not(.katex *) {
   font-family: 'Vazirmatn-DSH-Persian', var(--ds-font-family-code, "JetBrains Mono", Consolas, monospace) !important;
   direction: ltr !important;
   text-align: left !important;
 }
 
-/* ABSOLUTE STRICT LaTeX & Math Protection (Computer Modern / Latin Modern / KaTeX) */
+/* --- KATEX NATIVE PRESERVATION ---
+   Do NOT override font-family on KaTeX!
+   KaTeX defines its own fonts (KaTeX_Main, KaTeX_Math, KaTeX_Size1-4, KaTeX_AMS, etc.)
+   Only ensure LTR direction so RTL surrounding text does not invert math equations.
+*/
 .katex,
-.katex *,
 .katex-display,
-.katex-display *,
-.katex-html,
-.katex-html *,
-math,
-math *,
-[data-katex],
-[data-katex] *,
-.math,
-.math *,
-[data-latex],
-[data-latex] * {
-  font-family: KaTeX_Math, KaTeX_Main, "Latin Modern Math", "Computer Modern", "STIX Two Math", "Cambria Math", serif !important;
+.katex-html {
   direction: ltr !important;
-  text-align: left !important;
   unicode-bidi: isolate !important;
 }
 
-.katex .mathnormal {
-  font-family: KaTeX_Math, "Latin Modern Math", "Computer Modern", serif !important;
-}
-
-.katex .amsrm {
-  font-family: KaTeX_AMS, serif !important;
-}
-
-.katex .mathbf {
-  font-family: KaTeX_Main, serif !important;
-  font-weight: bold !important;
-}
-
-.katex .mathit {
-  font-family: KaTeX_Main, serif !important;
-  font-style: italic !important;
-}
-
-.katex .mathsf {
-  font-family: KaTeX_SansSerif, sans-serif !important;
-}
-
-.katex .mathtt {
-  font-family: KaTeX_Typewriter, monospace !important;
-}
-
-.katex .mathscr,
-.katex .mathcal {
-  font-family: KaTeX_Script, KaTeX_Caligraphic, serif !important;
-}
-
-.katex .mathfrak {
-  font-family: KaTeX_Fraktur, serif !important;
-}
-
-/* Persian text within LaTeX \\text{} */
-.katex .text {
-  font-family: 'Vazirmatn-DSH-Persian', KaTeX_Main, serif !important;
+.katex-display {
+  text-align: center !important;
 }
 
 /* Refined Persian paragraph spacing */
@@ -150,7 +93,7 @@ math *,
 }
 `;
 
-const clientJs = `// dsh-plugin-persian-vazirmatn: Persian Vazirmatn Typography & LaTeX Math Protection
+const clientJs = `// dsh-plugin-persian-vazirmatn: Persian Vazirmatn Typography & Native KaTeX Math
 (function() {
   'use strict';
   var STYLE_ID = 'dsh-persian-vazirmatn-styles';
@@ -258,7 +201,7 @@ export const name = 'persianVazirmatn';
 
 export function apply(ctx) {
   if (ctx.logger) {
-    ctx.logger('persian-vazirmatn').info('Persian Vazirmatn font & LaTeX protection plugin initialized');
+    ctx.logger('persian-vazirmatn').info('Persian Vazirmatn font & native KaTeX math initialized');
   }
 }
 `;

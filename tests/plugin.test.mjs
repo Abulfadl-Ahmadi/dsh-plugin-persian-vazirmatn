@@ -16,6 +16,7 @@ test('package.json metadata and dsh config', () => {
   assert.ok(pkg.exports['./client']);
   assert.ok(pkg.dsh.bundle.patch);
   assert.equal(pkg.dsh.client.platform, 'web');
+  assert.equal(pkg.dsh.client.immediately, true);
 });
 
 test('cordis.patch.yml is valid', () => {
@@ -29,7 +30,6 @@ test('Host entrypoint lib/index.js exports name and apply', async () => {
   assert.equal(host.name, 'persianVazirmatn');
   assert.equal(typeof host.apply, 'function');
 
-  // Verify apply can run safely
   let logged = false;
   host.apply({
     logger: () => ({ info: () => { logged = true; } })
@@ -37,16 +37,13 @@ test('Host entrypoint lib/index.js exports name and apply', async () => {
   assert.equal(logged, true);
 });
 
-test('Client script contains unicode-range and LaTeX protection', () => {
+test('Client script contains unicode-range and native KaTeX preservation', () => {
   const client = fs.readFileSync(path.join(rootDir, 'lib', 'client.js'), 'utf8');
   assert.ok(client.includes('Vazirmatn-DSH-Persian'), 'declares Vazirmatn-DSH-Persian font');
   assert.ok(client.includes('unicode-range'), 'uses unicode-range');
   assert.ok(client.includes('U+0600-06FF'), 'covers Arabic/Persian unicode range');
   assert.ok(client.includes('U+200C'), 'covers Zero-Width Non-Joiner (ZWNJ)');
   assert.ok(client.includes('.katex'), 'protects .katex class');
-  assert.ok(client.includes('KaTeX_Math'), 'preserves KaTeX_Math');
-  assert.ok(client.includes('KaTeX_Main'), 'preserves KaTeX_Main');
-  assert.ok(client.includes('Computer Modern'), 'preserves Computer Modern');
-  assert.ok(client.includes('Latin Modern Math'), 'preserves Latin Modern Math');
+  assert.ok(client.includes(':not(.katex)'), 'excludes .katex from generic font overrides');
   assert.ok(client.includes('direction: ltr !important'), 'forces LTR on math formulas');
 });
